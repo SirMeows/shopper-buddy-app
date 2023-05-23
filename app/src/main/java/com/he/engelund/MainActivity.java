@@ -2,19 +2,18 @@ package com.he.engelund;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.*;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.GoogleApiClient;
+import androidx.fragment.app.FragmentActivity;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 import com.he.engelund.databinding.ActivityMainBinding;
 import com.he.engelund.databinding.ActivitySignInBinding;
 
-public class MainActivity extends FragmentActivity implements
-        GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends FragmentActivity {
 
     private ActivityMainBinding mainBinding;
     private ActivitySignInBinding signInBinding;
@@ -22,15 +21,13 @@ public class MainActivity extends FragmentActivity implements
     private static final String TAG = "MainActivity";
     private static final int RC_SIGN_IN = 9001;
 
-    private GoogleApiClient googleApiClient;
-    private SignInButton signInButton;
+    private GoogleSignInClient googleSignInClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Log.i(TAG, "entering onCreate() in MainActivity");
-
 
         // Check if the user is already authenticated with Google Identity Service
         if (isUserLoggedIn()) {
@@ -47,14 +44,9 @@ public class MainActivity extends FragmentActivity implements
                     .requestEmail()
                     .build();
 
-            googleApiClient = new GoogleApiClient.Builder(this)
-                    .enableAutoManage(this, this)
-                    .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                    .build();
+            googleSignInClient = GoogleSignIn.getClient(this, gso);
 
-            signInButton = signInBinding.loginWithGoogleButton; // use the generated binding to find view
-
-            signInButton.setOnClickListener(v -> signIn());
+            signInBinding.signInButton.setOnClickListener(v -> signIn());
         }
     }
 
@@ -67,7 +59,7 @@ public class MainActivity extends FragmentActivity implements
     }
 
     private void signIn() {
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
+        Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
@@ -76,27 +68,21 @@ public class MainActivity extends FragmentActivity implements
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_SIGN_IN) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            handleSignInResult(result);
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
         }
     }
 
-    private void handleSignInResult(GoogleSignInResult result) {
-        Log.d(TAG, "handleSignInResult: " + result.isSuccess());
-        if (result.isSuccess()) {
-            GoogleSignInAccount account = result.getSignInAccount();
-            // Use the account information as needed (e.g., send it to the server)
-            // After successful login, update the UI or navigate to the main activity
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            // Signed in successfully, show authenticated UI.
             setContentView(R.layout.activity_main);
-            // Rest of the code for authenticated users...
-        } else {
-            // Handle sign-in failure
-            Log.e(TAG, "Sign-in failed. Error code: " + result.getStatus().getStatusCode());
+        } catch (ApiException e) {
+            // The ApiException status code indicates the detailed failure reason.
+            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            Log.e(TAG, "signInResult:failed code=" + e.getStatusCode());
         }
     }
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d(TAG, "onConnectionFailed: " + connectionResult);
-    }
 }

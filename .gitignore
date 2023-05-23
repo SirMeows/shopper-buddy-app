@@ -10,12 +10,8 @@ gen/
 
 # Ignore gradle files
 /.gradle
-app/
-build.gradle
-gradle.properties
 gradlew
 gradlew.bat
-settings.gradle
 
 # Intellij IDEA (see https://intellij-support.jetbrains.com/entries/23393067)
 .idea/

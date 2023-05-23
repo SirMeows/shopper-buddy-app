@@ -1,0 +1,13 @@
+<resources>
+    <string name="server_client_id">YOUR_SERVER_CLIENT_ID</string>
+
+    <string name="app_name">shopper-buddy-app</string>
+    <string name="title_activity_main">Main</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="common_google_signin_btn_text_light">Login Plox</string>
+    <string name="search">Search</string>
+    <string name="items">Items</string>
+    <string name="lists">Lists</string>
+</resources>
