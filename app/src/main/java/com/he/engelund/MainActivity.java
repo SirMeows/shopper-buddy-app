@@ -5,15 +5,19 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.View;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.*;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.he.engelund.databinding.ActivityMainBinding;
+import com.he.engelund.databinding.ActivitySignInBinding;
 
 public class MainActivity extends FragmentActivity implements
         GoogleApiClient.OnConnectionFailedListener {
+
+    private ActivityMainBinding mainBinding;
+    private ActivitySignInBinding signInBinding;
 
     private static final String TAG = "MainActivity";
     private static final int RC_SIGN_IN = 9001;
@@ -25,12 +29,19 @@ public class MainActivity extends FragmentActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.i(TAG, "entering onCreate() in MainActivity");
+
+
         // Check if the user is already authenticated with Google Identity Service
         if (isUserLoggedIn()) {
-            setContentView(R.layout.activity_main);
-            // Rest of the code for authenticated users...
+            // Initialize binding with layout
+            mainBinding = ActivityMainBinding.inflate(getLayoutInflater());
+            setContentView(mainBinding.getRoot());
+            // Use bindings here...
         } else {
-            setContentView(R.layout.activity_sign_in);
+            // Initialize binding with layout
+            signInBinding = ActivitySignInBinding.inflate(getLayoutInflater());
+            setContentView(signInBinding.getRoot());
             // Rest of the code for non-authenticated users...
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                     .requestEmail()
@@ -41,14 +52,9 @@ public class MainActivity extends FragmentActivity implements
                     .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                     .build();
 
-            signInButton = findViewById(R.id.login_with_google_button);
+            signInButton = signInBinding.loginWithGoogleButton; // use the generated binding to find view
 
-            signInButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    signIn();
-                }
-            });
+            signInButton.setOnClickListener(v -> signIn());
         }
     }
 
