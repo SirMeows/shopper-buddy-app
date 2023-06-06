@@ -31,7 +31,6 @@ public class MainActivity extends FragmentActivity {
     private ActivitySignInBinding signInBinding;
 
     private static final String TAG = "MainActivity";
-    private static final int RC_SIGN_IN = 9001;
 
     private GoogleSignInClient googleSignInClient;
 
@@ -98,16 +97,6 @@ public class MainActivity extends FragmentActivity {
         signInResultLauncher.launch(signInIntent);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == RC_SIGN_IN) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
-        }
-    }
-
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
@@ -133,18 +122,17 @@ public class MainActivity extends FragmentActivity {
                     }
             ).attach();
         } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            // The ApiException status code indicates the detailed failure reason
+            // GoogleSignInStatusCodes class ref for more info
             Log.e(TAG, "signInResult:failed code=" + e.getStatusCode());
         }
     }
 
     private void setupViewPager(ViewPager2 viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
-        adapter.addFragment(new ItemListsFragment());
-        adapter.addFragment(new ItemsFragment());
-        adapter.addFragment(new SearchFragment());
+        adapter.addFragment(new ItemListsFragment(), "Lists");
+        adapter.addFragment(new ItemsFragment(), "Items");
+        adapter.addFragment(new SearchFragment(), "Search");
         viewPager.setAdapter(adapter);
     }
-
 }
