@@ -18,11 +18,12 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.he.engelund.adapters.ViewPagerAdapter;
 import com.he.engelund.databinding.ActivityMainBinding;
 import com.he.engelund.databinding.ActivitySignInBinding;
-import com.he.engelund.fragments.ItemListsFragment;
-import com.he.engelund.fragments.ItemsFragment;
-import com.he.engelund.fragments.SearchFragment;
+import com.he.engelund.ui.ItemListFragment;
+import com.he.engelund.ui.ItemFragment;
+import com.he.engelund.ui.SearchFragment;
 
 
 public class MainActivity extends FragmentActivity {
@@ -130,8 +131,8 @@ public class MainActivity extends FragmentActivity {
 
     private void setupViewPager(ViewPager2 viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
-        adapter.addFragment(new ItemListsFragment(), "Lists");
-        adapter.addFragment(new ItemsFragment(), "Items");
+        adapter.addFragment(new ItemListFragment(), "Lists");
+        adapter.addFragment(new ItemFragment(), "Items");
         adapter.addFragment(new SearchFragment(), "Search");
         viewPager.setAdapter(adapter);
     }

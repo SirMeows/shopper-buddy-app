@@ -1,4 +1,4 @@
-package com.he.engelund.fragments;
+package com.he.engelund.ui;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,36 +9,39 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.he.engelund.databinding.FragmentItemListsBinding;
+import com.he.engelund.databinding.FragmentItemListBinding;
+import com.he.engelund.viewmodels.ItemListViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class ItemListsFragment extends Fragment {
+public class ItemListFragment extends Fragment {
 
-    private FragmentItemListsBinding binding;
+    private FragmentItemListBinding binding;
     private ItemListAdapter itemListAdapter;
+    private ItemListViewModel itemListViewModel;
+
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment using View Binding
-        binding = FragmentItemListsBinding.inflate(inflater, container, false);
+        binding = FragmentItemListBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
 
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Initialize with dummy data
-        List<String> dummyData = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
-            dummyData.add("Item " + i);
-        }
+        itemListViewModel = new ViewModelProvider(this).get(ItemListViewModel.class);
 
-        itemListAdapter = new ItemListAdapter(dummyData);
-        binding.recyclerView.setAdapter(itemListAdapter);
+        itemListViewModel.getItemList().observe(getViewLifecycleOwner(), itemList -> {
+            // Update the UI here when the data changes.
+            // Instead of findViewById, you can use the binding object to refer to views.
+            // For example, if you have a TextView with an id of text_item_list in your layout, you could do:
+            // binding.textItemList.setText(itemList.getName());
+        });
 
         return view;
     }

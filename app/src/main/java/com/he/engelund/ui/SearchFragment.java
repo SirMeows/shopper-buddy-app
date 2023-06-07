@@ -1,4 +1,4 @@
-package com.he.engelund.fragments;
+package com.he.engelund.ui;
 
 import android.os.Bundle;
 import android.view.Gravity;

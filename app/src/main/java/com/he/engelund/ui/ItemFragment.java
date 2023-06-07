@@ -1,4 +1,4 @@
-package com.he.engelund.fragments;
+package com.he.engelund.ui;
 
 import android.os.Bundle;
 import android.view.Gravity;
@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-public class ItemsFragment extends Fragment {
+public class ItemFragment extends Fragment {
 
     @Nullable
     @Override

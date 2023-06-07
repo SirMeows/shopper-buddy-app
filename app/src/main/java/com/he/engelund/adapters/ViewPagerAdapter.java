@@ -1,4 +1,4 @@
-package com.he.engelund;
+package com.he.engelund.adapters;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
