@@ -4,31 +4,28 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
+import com.he.engelund.adapters.ItemListAdapter;
 import com.he.engelund.databinding.FragmentItemListBinding;
 import com.he.engelund.viewmodels.ItemListViewModel;
 
-import java.util.List;
 
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class ItemListFragment extends Fragment {
 
     private FragmentItemListBinding binding;
-
+    private ItemListAdapter itemListAdapter;
     private ItemListViewModel itemListViewModel;
-
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @Nullable
     @Override
@@ -37,69 +34,46 @@ public class ItemListFragment extends Fragment {
         binding = FragmentItemListBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
 
+        // Create the adapter
+        itemListAdapter = new ItemListAdapter();
+
+        // Assign the adapter to the RecyclerView
+        binding.recyclerView.setAdapter(itemListAdapter);
+
+        // Use LinearLayoutManager as the layout manager for the RecyclerView
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        itemListViewModel = new ViewModelProvider(this).get(ItemListViewModel.class);
-
-        Disposable disposable = itemListViewModel.getItemListsObservable()
-                .subscribeOn(Schedulers.io()) // subscribeOn(Schedulers.io()) instructs the source Observable to emit its items on a background thread (multi-threading)
-                .observeOn(AndroidSchedulers.mainThread()) // But manipulating the UI is done on the main thread.
-                .subscribe(
-                        // onNext
-                        itemList -> {
-                            // Update the UI here when the data changes.
-                            // Use the binding object to refer to views.
-                            // For example, if you have a TextView with an id of text_item_list in your layout, you could do:
-                            // binding.textItemList.setText(itemList.getName());
-                        },
-                        // onError
-                        throwable -> {
-                            // handle error here
-                        }
-                );
-
-        itemListViewModel.getCompositeDisposable().add(disposable);
 
         return view;
     }
 
-    private static class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ViewHolder> {
-        private List<String> data;
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        public ItemListAdapter(List<String> data) {
-            this.data = data;
-        }
+        // Initialize the ViewModel
+        itemListViewModel = new ViewModelProvider(this).get(ItemListViewModel.class);
 
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            holder.textView.setText(data.get(position));
-        }
-
-        @Override
-        public int getItemCount() {
-            return data.size();
-        }
-
-        static class ViewHolder extends RecyclerView.ViewHolder {
-            TextView textView;
-
-            public ViewHolder(@NonNull View itemView) {
-                super(itemView);
-                textView = itemView.findViewById(android.R.id.text1);
-            }
-        }
+        // Subscribe to the data from ViewModel and update the RecyclerView's adapter when the data arrives
+        compositeDisposable.add(
+                itemListViewModel.getItemListsObservable()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                items -> {
+                                    itemListAdapter.setItemLists(items); // assuming your adapter has a method to set the list of items
+                                    itemListAdapter.notifyDataSetChanged();
+                                },
+                                throwable -> {
+                                    // handle error here
+                                }
+                        )
+        );
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        compositeDisposable.clear(); // clear the compositeDisposable when the view is destroyed
         binding = null;
     }
 }
