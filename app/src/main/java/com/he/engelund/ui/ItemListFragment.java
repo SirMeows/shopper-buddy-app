@@ -18,10 +18,15 @@ import com.he.engelund.viewmodels.ItemListViewModel;
 
 import java.util.List;
 
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+
+
 public class ItemListFragment extends Fragment {
 
     private FragmentItemListBinding binding;
-    private ItemListAdapter itemListAdapter;
+
     private ItemListViewModel itemListViewModel;
 
 
@@ -36,12 +41,24 @@ public class ItemListFragment extends Fragment {
 
         itemListViewModel = new ViewModelProvider(this).get(ItemListViewModel.class);
 
-        itemListViewModel.getItemList().observe(getViewLifecycleOwner(), itemList -> {
-            // Update the UI here when the data changes.
-            // Instead of findViewById, you can use the binding object to refer to views.
-            // For example, if you have a TextView with an id of text_item_list in your layout, you could do:
-            // binding.textItemList.setText(itemList.getName());
-        });
+        Disposable disposable = itemListViewModel.getItemListsObservable()
+                .subscribeOn(Schedulers.io()) // subscribeOn(Schedulers.io()) instructs the source Observable to emit its items on a background thread (multi-threading)
+                .observeOn(AndroidSchedulers.mainThread()) // But manipulating the UI is done on the main thread.
+                .subscribe(
+                        // onNext
+                        itemList -> {
+                            // Update the UI here when the data changes.
+                            // Use the binding object to refer to views.
+                            // For example, if you have a TextView with an id of text_item_list in your layout, you could do:
+                            // binding.textItemList.setText(itemList.getName());
+                        },
+                        // onError
+                        throwable -> {
+                            // handle error here
+                        }
+                );
+
+        itemListViewModel.getCompositeDisposable().add(disposable);
 
         return view;
     }
