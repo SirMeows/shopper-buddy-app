@@ -18,8 +18,6 @@ public class ItemListViewModel extends ViewModel {
 
 
     public ItemListViewModel(ItemListRepository itemListRepository){
-
-
         itemListsObservable = itemListRepository.getItemLists();
         compositeDisposable = new CompositeDisposable();
     }
@@ -43,7 +41,7 @@ public class ItemListViewModel extends ViewModel {
                 itemListsObservable.subscribe(
                         // onNext
                         itemLists -> {
-                            // process the itemLists here
+                            //TODO: process the itemLists here. Try with some log statement or print
                         },
                         // onError
                         throwable -> {

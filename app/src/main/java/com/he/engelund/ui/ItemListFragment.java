@@ -59,8 +59,8 @@ public class ItemListFragment extends Fragment {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
-                                items -> {
-                                    itemListAdapter.setItemLists(items); // assuming your adapter has a method to set the list of items
+                                itemLists -> {
+                                    itemListAdapter.setItemLists(itemLists); // assuming your adapter has a method to set the list of items
                                     itemListAdapter.notifyDataSetChanged();
                                 },
                                 throwable -> {

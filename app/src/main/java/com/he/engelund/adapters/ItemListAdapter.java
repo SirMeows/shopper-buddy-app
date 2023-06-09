@@ -17,7 +17,7 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemLi
 
     private List<ItemList> itemLists = new ArrayList<>();
 
-    // Method to set the list of itemsitemLists and notify the adapter of changes
+    // Method to set the list of itemLists and notify the adapter of changes
     public void setItemLists(List<ItemList> itemLists) {
         this.itemLists = itemLists;
         notifyDataSetChanged();
