@@ -1,4 +1,4 @@
-package com.he.engelund;
+package com.he.engelund.activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -21,8 +21,8 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import com.he.engelund.adapters.ViewPagerAdapter;
 import com.he.engelund.databinding.ActivityMainBinding;
 import com.he.engelund.databinding.ActivitySignInBinding;
-import com.he.engelund.ui.ItemListFragment;
-import com.he.engelund.ui.ItemFragment;
+import com.he.engelund.ui.ItemListActivity;
+import com.he.engelund.ui.ItemActivity;
 import com.he.engelund.ui.SearchFragment;
 
 
@@ -131,8 +131,8 @@ public class MainActivity extends FragmentActivity {
 
     private void setupViewPager(ViewPager2 viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
-        adapter.addFragment(new ItemListFragment(), "Lists");
-        adapter.addFragment(new ItemFragment(), "Items");
+        adapter.addFragment(new ItemListActivity(), "Lists");
+        adapter.addFragment(new ItemActivity(), "Items");
         adapter.addFragment(new SearchFragment(), "Search");
         viewPager.setAdapter(adapter);
     }

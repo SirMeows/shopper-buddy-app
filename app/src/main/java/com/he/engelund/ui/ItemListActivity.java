@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.he.engelund.adapters.ItemListAdapter;
-import com.he.engelund.databinding.FragmentItemListBinding;
+import com.he.engelund.databinding.ActivityItemListBinding;
 import com.he.engelund.viewmodels.ItemListViewModel;
 
 
@@ -20,9 +20,9 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class ItemListFragment extends Fragment {
+public class ItemListActivity extends Fragment {
 
-    private FragmentItemListBinding binding;
+    private ActivityItemListBinding binding;
     private ItemListAdapter itemListAdapter;
     private ItemListViewModel itemListViewModel;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -31,7 +31,7 @@ public class ItemListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment using View Binding
-        binding = FragmentItemListBinding.inflate(inflater, container, false);
+        binding = binding.inflate(inflater, container, false);
         View view = binding.getRoot();
 
         // Create the adapter
@@ -60,7 +60,7 @@ public class ItemListFragment extends Fragment {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                                 itemLists -> {
-                                    itemListAdapter.setItemLists(itemLists); // assuming your adapter has a method to set the list of items
+                                    itemListAdapter.setItemLists(itemLists); // assuming your adapter has a method to set the list of itemLists
                                     itemListAdapter.notifyDataSetChanged();
                                 },
                                 throwable -> {

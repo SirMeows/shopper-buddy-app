@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-public class ItemFragment extends Fragment {
+public class ItemActivity extends Fragment {
 
     @Nullable
     @Override
