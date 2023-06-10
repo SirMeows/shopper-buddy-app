@@ -17,6 +17,20 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemLi
 
     private List<ItemList> itemLists = new ArrayList<>();
 
+    static class ItemListViewHolder extends RecyclerView.ViewHolder {
+        ItemListRowBinding binding;
+
+        ItemListViewHolder(ItemListRowBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+
+        void bind(ItemList itemList) {
+            binding.setItemList(itemList); // this assumes you have a variable named 'itemList' in your 'item_list_row' layout
+            binding.executePendingBindings(); // To make sure the view is immediately updated with the changes
+        }
+    }
+
     // Method to set the list of itemLists and notify the adapter of changes
     public void setItemLists(List<ItemList> itemLists) {
         this.itemLists = itemLists;
@@ -43,17 +57,4 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemLi
         return itemLists.size();
     }
 
-    static class ItemListViewHolder extends RecyclerView.ViewHolder {
-        ItemListRowBinding binding;
-
-        ItemListViewHolder(ItemListRowBinding binding) {
-            super(binding.getRoot());
-            this.binding = binding;
-        }
-
-        void bind(ItemList itemList) {
-            binding.setItemList(itemList); // this assumes you have a variable named 'itemList' in your 'item_list_row' layout
-            binding.executePendingBindings(); // To make sure the view is immediately updated with the changes
-        }
-    }
 }
