@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -21,15 +22,18 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import com.he.engelund.adapters.ViewPagerAdapter;
 import com.he.engelund.databinding.ActivityMainBinding;
 import com.he.engelund.databinding.ActivitySignInBinding;
-import com.he.engelund.ui.ItemListActivity;
-import com.he.engelund.ui.ItemActivity;
+import com.he.engelund.ui.ItemFragment;
+import com.he.engelund.ui.ItemListFragment;
 import com.he.engelund.ui.SearchFragment;
+import com.he.engelund.viewmodels.ItemListViewModel;
 
 
 public class MainActivity extends FragmentActivity {
 
     private ActivityMainBinding mainBinding;
     private ActivitySignInBinding signInBinding;
+
+    private ItemListViewModel viewModel;
 
     private static final String TAG = "MainActivity";
 
@@ -40,6 +44,7 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(this).get(ItemListViewModel.class);
 
         if (isUserLoggedIn()) {
             // Initialize binding with layout
@@ -131,9 +136,16 @@ public class MainActivity extends FragmentActivity {
 
     private void setupViewPager(ViewPager2 viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
-        adapter.addFragment(new ItemListActivity(), "Lists");
-        adapter.addFragment(new ItemActivity(), "Items");
+        adapter.addFragment(new ItemListFragment(), "Lists");
+        adapter.addFragment(new ItemFragment(), "Items");
         adapter.addFragment(new SearchFragment(), "Search");
         viewPager.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Dispose of all the subscriptions when the activity is destroyed
+        viewModel.getCompositeDisposable().clear();
     }
 }
