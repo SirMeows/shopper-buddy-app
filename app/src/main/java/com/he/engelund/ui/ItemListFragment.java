@@ -38,7 +38,7 @@ public class ItemListFragment extends Fragment {
         // Set up RecyclerView
         adapter = new ItemListAdapter();
         binding.recyclerView.setAdapter(adapter); // Use binding instead of findViewById()
-
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         return binding.getRoot();
     }
 
