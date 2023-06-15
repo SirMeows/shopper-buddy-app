@@ -10,10 +10,10 @@ import retrofit2.http.GET;
 
 public interface ItemListService {
 
-    @GET("api/items/")
+    @GET("/api/item-lists/")
     Observable<List<ItemList>> getItemLists();
 
-    @GET("api/items/{id}/items-by-list")
+    @GET("/api/item-lists/{id}/items-by-list")
     Observable<List<Item>> getItemsByItemList();
 }
 

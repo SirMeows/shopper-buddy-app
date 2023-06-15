@@ -9,21 +9,22 @@ import java.util.List;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.subjects.BehaviorSubject;
 
 public class ItemListViewModel extends ViewModel {
 
-    private Observable<List<ItemList>> itemListsObservable;
+    private final BehaviorSubject<List<ItemList>> itemListsSubject = BehaviorSubject.create();
+    private final CompositeDisposable compositeDisposable;
+    private final ItemListRepository itemListRepository;
 
-    private CompositeDisposable compositeDisposable;
-
-
-    public ItemListViewModel(ItemListRepository itemListRepository){
-        itemListsObservable = itemListRepository.getItemLists();
-        compositeDisposable = new CompositeDisposable();
+    public ItemListViewModel(String idToken){
+        this.itemListRepository = new ItemListRepository(idToken);
+        this.compositeDisposable = new CompositeDisposable();
     }
 
     public Observable<List<ItemList>> getItemListsObservable() {
-        return itemListsObservable;
+        return itemListsSubject.hide();
     }
 
     public CompositeDisposable getCompositeDisposable() {
@@ -38,17 +39,14 @@ public class ItemListViewModel extends ViewModel {
 
     public void fetchItemLists() {
         compositeDisposable.add(
-                itemListsObservable.subscribe(
-                        // onNext
-                        itemLists -> {
-                            //TODO: process the itemLists here. Try with some log statement or print
-                        },
-                        // onError
-                        throwable -> {
-                            // handle error here
-                        }
-                )
+                itemListRepository.getItemLists()
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(
+                                // onNext
+                                itemListsSubject::onNext,
+                                // onError
+                                itemListsSubject::onError
+                        )
         );
     }
 }
-
