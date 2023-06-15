@@ -1,12 +1,14 @@
 package com.he.engelund.ui;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.he.engelund.adapters.ItemListAdapter;
 import com.he.engelund.databinding.ItemListFragmentBinding;
@@ -57,7 +59,7 @@ public class ItemListFragment extends Fragment {
                             adapter.setItemLists(itemLists);
                         },
                         throwable -> {
-                            // Handle the error
+                            Log.e("ItemListFragment", throwable.getMessage());
                         }
                 );
         viewModel.getCompositeDisposable().add(disposable);

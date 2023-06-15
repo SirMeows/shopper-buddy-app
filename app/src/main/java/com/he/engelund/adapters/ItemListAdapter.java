@@ -56,5 +56,4 @@ public class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ItemLi
     public int getItemCount() { // Item here is an element of collection, not a ref to ItemList
         return itemLists.size();
     }
-
 }
