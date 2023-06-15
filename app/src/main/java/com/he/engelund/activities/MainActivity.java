@@ -1,7 +1,9 @@
 package com.he.engelund.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -19,7 +21,6 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.he.engelund.R;
 import com.he.engelund.adapters.ViewPagerAdapter;
 import com.he.engelund.databinding.ActivityMainBinding;
 import com.he.engelund.databinding.ActivitySignInBinding;
@@ -47,69 +48,71 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // if preference is to be used in various Activities, use getSharedPreferences (but should save a safer storing of the info), otherwise use Preferences
+        SharedPreferences sharedPref = getSharedPreferences("com.he.engelund",Context.MODE_PRIVATE);
+        String idToken = sharedPref.getString("idToken", "");
+
         googleSignInClient = getSignInClient();
-        googleSignInClient.signOut(); //TODO: Remove when sign-out button implemented (right now UserLoggedIn() is redundant)
+        googleSignInClient.signOut();
         if (isUserLoggedIn()) {
-            showMainView();
+            // Initialize binding with layout
+            mainBinding = ActivityMainBinding.inflate(getLayoutInflater());
+            setContentView(mainBinding.getRoot());
+
+            setupViewPager(mainBinding.viewPager);
+
+            new TabLayoutMediator(mainBinding.main, mainBinding.viewPager,
+                    (tab, position) -> {
+                        switch (position) {
+                            case 0:
+                                tab.setText("Lists");
+                                break;
+                            case 1:
+                                tab.setText("Items");
+                                break;
+                            case 2:
+                                tab.setText("Search");
+                                break;
+                        }
+                    }
+            ).attach();
+            viewModel = new ViewModelProvider(this, new ItemListViewModelFactory(sharedPref, GoogleSignIn.getLastSignedInAccount(this))).get(ItemListViewModel.class);
 
         } else {
-            startSignInActivity();
+            signInBinding = ActivitySignInBinding.inflate(getLayoutInflater());
+            setContentView(signInBinding.getRoot());
+            signInResultLauncher = registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            Intent data = result.getData();
+                            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                            handleSignInResult(task);
+                            // need to make sure that whatever credentials and authorization that google returns is used when retrofit is doing queries to the backend.
+                        }
+                    }
+            );
+
+            signInBinding.signInButton.setOnClickListener(v -> signIn());
         }
     }
 
-    private void startSignInActivity() {
-        signInBinding = ActivitySignInBinding.inflate(getLayoutInflater());
-        setContentView(signInBinding.getRoot());
-        signInResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Intent data = result.getData();
-                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                        handleSignInResult(task);
-                    }
-                }
-        );
-
-        signInBinding.signInButton.setOnClickListener(v -> signIn());
-    }
-
-    private void showMainView() {
-        mainBinding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(mainBinding.getRoot());
-        setupViewPager(mainBinding.viewPager);
-
-        new TabLayoutMediator(mainBinding.main, mainBinding.viewPager,
-                (tab, position) -> {
-                    switch (position) {
-                        case 0:
-                            tab.setText("Lists");
-                            break;
-                        case 1:
-                            tab.setText("Items");
-                            break;
-                        case 2:
-                            tab.setText("Search");
-                            break;
-                    }
-                }
-        ).attach();
-        viewModel = new ViewModelProvider(this, new ItemListViewModelFactory(GoogleSignIn.getLastSignedInAccount(this))).get(ItemListViewModel.class);
-    }
-
     private GoogleSignInClient getSignInClient() {
+        String serverClientId = "242570886832-t0g21ior6e49tqgdpk90876vta0vb85p.apps.googleusercontent.com";
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .requestId()
                 .requestProfile()
-                .requestIdToken(getString(R.string.serverClientId))
+                .requestIdToken(serverClientId)
                 .build();
 
         return GoogleSignIn.getClient(this, gso);
     }
 
     private boolean isUserLoggedIn() {
+
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+
         return account != null && !account.isExpired() && account.getIdToken() != null;
     }
 
@@ -122,10 +125,43 @@ public class MainActivity extends FragmentActivity {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
 
-            showMainView();
+            // Signed in successfully, show authenticated UI.
+
+            // Store the idToken to SharedPreferences
+            SharedPreferences sharedPref = getSharedPreferences("com.he.engelund",Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("idToken", account.getIdToken());
+            Log.w("MainActivity",account.getIdToken());
+            editor.apply();
+
+
+
+            mainBinding = ActivityMainBinding.inflate(getLayoutInflater());
+            setContentView(mainBinding.getRoot());
+
+            setupViewPager(mainBinding.viewPager);
+
+            new TabLayoutMediator(mainBinding.main, mainBinding.viewPager,
+                    (tab, position) -> {
+                        switch (position) {
+                            case 0:
+                                tab.setText("Lists");
+                                break;
+                            case 1:
+                                tab.setText("Items");
+                                break;
+                            case 2:
+                                tab.setText("Search");
+                                break;
+                        }
+                    }
+            ).attach();
+            viewModel = new ViewModelProvider(this, new ItemListViewModelFactory(sharedPref, GoogleSignIn.getLastSignedInAccount(this))).get(ItemListViewModel.class);
 
 
         } catch (ApiException e) {
+            // The ApiException status code indicates the detailed failure reason
+            // GoogleSignInStatusCodes class ref for more info
             Log.e(TAG, "signInResult:failed code=" + e.getStatusCode());
         }
     }
@@ -141,7 +177,7 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        // Dispose of all the subscriptions when the activity is destroyed
         viewModel.getCompositeDisposable().clear();
     }
 }

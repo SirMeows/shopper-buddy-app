@@ -12,10 +12,13 @@ import io.reactivex.rxjava3.annotations.NonNull;
 
 public class ItemListViewModelFactory implements ViewModelProvider.Factory {
 
+
+    private SharedPreferences sharedPreferences;
     private GoogleSignInAccount lastSignedInAccount;
 
-    public ItemListViewModelFactory(GoogleSignInAccount lastSignedInAccount) {
+    public ItemListViewModelFactory(SharedPreferences prefs, GoogleSignInAccount lastSignedInAccount) {
 
+        sharedPreferences = prefs;
         this.lastSignedInAccount = lastSignedInAccount;
     }
 
@@ -24,8 +27,11 @@ public class ItemListViewModelFactory implements ViewModelProvider.Factory {
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
 
 
-        String idToken = lastSignedInAccount.getIdToken();
+        String idToken = sharedPreferences.getString("idToken", "");
 
+        Log.w("ItemListViewModelFactory", idToken);
+        idToken = lastSignedInAccount.getIdToken();
+        Log.w("ItemListViewModelFactory", "" +idToken);
         if (modelClass.isAssignableFrom(ItemListViewModel.class)) {
             return (T) new ItemListViewModel(idToken);
         }
