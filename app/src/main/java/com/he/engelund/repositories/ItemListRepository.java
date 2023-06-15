@@ -24,16 +24,19 @@ public class ItemListRepository {
         Log.w("ItemListRepository","" +idToken);
 
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-        loggingInterceptor.level(HttpLoggingInterceptor.Level.HEADERS); // log request and response body
+        loggingInterceptor.level(HttpLoggingInterceptor.Level.HEADERS);
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(chain -> {
                     Request originalRequest = chain.request();
-                    Request.Builder builder = originalRequest.newBuilder().header("Authorization", "Bearer " + idToken);
+                    Request.Builder builder =
+                            originalRequest.newBuilder()
+                                    .header("Authorization", "Bearer " + idToken);
+
                     Request newRequest = builder.build();
                     return chain.proceed(newRequest);
                 })
-                .addInterceptor(loggingInterceptor) // add here so that request is logged after the authorization header is added
+                .addInterceptor(loggingInterceptor)
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()

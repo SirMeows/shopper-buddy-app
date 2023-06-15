@@ -51,7 +51,6 @@ public class MainActivity extends FragmentActivity {
         googleSignInClient.signOut(); //TODO: Remove when sign-out button implemented (right now UserLoggedIn() is redundant)
         if (isUserLoggedIn()) {
             showMainView();
-
         } else {
             startSignInActivity();
         }
